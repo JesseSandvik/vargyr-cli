@@ -1,110 +1,186 @@
 package com.vargyr.command.parser.picocli;
 
+import com.vargyr.command.Option;
+import com.vargyr.command.PositionalParameter;
 import com.vargyr.command.VgrCommand;
+import com.vargyr.command.execution.CommandExecution;
+import com.vargyr.command.execution.CommandExecutionState;
+import com.vargyr.command.execution.error.CommandExecutionError;
 import com.vargyr.command.parser.CommandLineParser;
 
 import io.micronaut.core.util.StringUtils;
-import lombok.Getter;
 import picocli.CommandLine;
-import picocli.CommandLine.Model.CommandSpec;
+import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Model.OptionSpec;
+import picocli.CommandLine.Model.PositionalParamSpec;
 
-@Getter
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Queue;
+
 public class PicocliCommandLineParser implements CommandLineParser {
-    private final VgrCommand vgrCommand;
-    private final CommandSpec commandSpec;
+    private final VgrCommand command;
 
-    public PicocliCommandLineParser(VgrCommand vgrCommand, CommandSpec commandSpec) {
-        this.vgrCommand = vgrCommand;
-        this.commandSpec = commandSpec;
+    public PicocliCommandLineParser(VgrCommand command) {
+        this.command = command;
     }
 
-    protected void formatUsageHelp() {
-        commandSpec.usageMessage()
-                .abbreviateSynopsis(true)
-                .parameterListHeading("%nPositional Parameters:%n")
-                .optionListHeading("%nOptions:%n")
-                .commandListHeading("%nCommands:%n");
+    private Integer handleUsageHelpRequested(CommandLine commandLine) {
+        commandLine.usage(commandLine.getOut());
+        return commandLine.getCommandSpec().exitCodeOnUsageHelp();
     }
 
-    protected void setSynopsis() {
-        if (vgrCommand.getMetadata() != null &&
-                StringUtils.isNotEmpty(vgrCommand.getMetadata().getSynopsis()) &&
-                !vgrCommand.getMetadata().getSynopsis().isBlank()) {
-            commandSpec.usageMessage().description(vgrCommand.getMetadata().getSynopsis());
+    private Integer handleVersionHelpRequested(CommandLine commandLine) {
+        commandLine.printVersionHelp(commandLine.getOut());
+        return commandLine.getCommandSpec().exitCodeOnVersionHelp();
+    }
+
+    private VgrCommand getCommandForParseResult(ParseResult parseResult) {
+        String commandName = parseResult.commandSpec().name();
+        if (StringUtils.isNotEmpty(command.getMetadata().getName()) &&
+                commandName.equalsIgnoreCase(command.getMetadata().getName())) {
+            return command;
+        }
+
+        if (!command.getSubcommands().isEmpty()) {
+            Queue<VgrCommand> commandQueue = new ArrayDeque<>(command.getSubcommands());
+            while (!commandQueue.isEmpty()) {
+                VgrCommand currentCommand = commandQueue.remove();
+                if (StringUtils.isNotEmpty(currentCommand.getMetadata().getName()) &&
+                        commandName.equalsIgnoreCase(currentCommand.getMetadata().getName())) {
+                    return currentCommand;
+                }
+                commandQueue.addAll(currentCommand.getSubcommands());
+            }
+        }
+        return null;
+    }
+
+    private void setPositionalParameterValues(
+            List<PositionalParameter> positionalParameters, ParseResult parseResult) {
+        List<PositionalParamSpec> matchedPositionalParameters = parseResult.matchedPositionals();
+
+        if (!matchedPositionalParameters.isEmpty()) {
+            positionalParameters.forEach(positionalParameter -> {
+                matchedPositionalParameters.forEach(matchedPositionalParameter -> {
+                    if (positionalParameter.getLabel().equalsIgnoreCase(matchedPositionalParameter.paramLabel())) {
+                        positionalParameter.setValue(matchedPositionalParameter.getValue());
+                    }
+                });
+            });
         }
     }
 
-    protected void setDescription() {
-        if (vgrCommand.getMetadata() != null &&
-                StringUtils.isNotEmpty(vgrCommand.getMetadata().getDescription()) &&
-                !vgrCommand.getMetadata().getDescription().isBlank()) {
-            commandSpec.usageMessage().footer("%n" + vgrCommand.getMetadata().getDescription() + "%n");
+    private void setOptionValues(List<Option> options, ParseResult parseResult) {
+        List<OptionSpec> matchedOptions = parseResult.matchedOptions();
+        if (!matchedOptions.isEmpty()) {
+            options.forEach(option -> {
+                matchedOptions.forEach(matchedOption -> {
+                    if (option.getLongName().equalsIgnoreCase(matchedOption.longestName())) {
+                        option.setValue(matchedOption.getValue());
+                    }
+                });
+            });
         }
     }
 
-    protected void addVersionOption() {
-        if (vgrCommand.getMetadata() != null &&
-                StringUtils.isNotEmpty(vgrCommand.getMetadata().getVersion()) &&
-                !vgrCommand.getMetadata().getVersion().isBlank()) {
-            commandSpec.version(vgrCommand.getMetadata().getVersion());
-            commandSpec.addOption(OptionSpec
-                    .builder("--version")
-                    .description("Show version information and exit.")
-                    .versionHelp(true)
-                    .build()
-            );
+    private CommandLine getCommandLineForCommand(VgrCommand command) {
+        PicocliCommandLineBuilder builder = new PicocliCommandLineBuilder(command.getMetadata().getName())
+                .setSynopsis(command.getMetadata().getSynopsis())
+                .setDescription(command.getMetadata().getDescription())
+                .addVersionOption(command.getMetadata().getVersion())
+                .addHelpOption()
+                .addDebugOption()
+                .addQuietOption()
+                .addNoInputOption()
+                .formatUsageHelp();
+
+        if (command.getPositionalParameters() != null && !command.getPositionalParameters().isEmpty()) {
+            command.getPositionalParameters().forEach(builder::addPositionalParameter);
         }
-    }
 
-    protected void addHelpOption() {
-        commandSpec.addOption(OptionSpec
-                .builder("-h", "--help")
-                .description("Show this help message and exit.")
-                .usageHelp(true)
-                .build()
-        );
-    }
+        if (command.getOptions() != null && !command.getOptions().isEmpty()) {
+            command.getOptions().forEach(builder::addOption);
+        }
 
-    protected void addDebugOption() {
-        commandSpec.addOption(OptionSpec
-                .builder("--debug")
-                .description("Show debugging output.")
-                .build()
-        );
-    }
-
-    protected void addQuietOption() {
-        commandSpec.addOption(OptionSpec
-                .builder("--quiet")
-                .description("Show minimal output.")
-                .build()
-        );
-    }
-
-    protected void addNoInputOption() {
-        commandSpec.addOption(OptionSpec
-                .builder("--no-input")
-                .description("Disable interactive prompts.")
-                .build()
-        );
+        if (command.getSubcommands() != null && !command.getSubcommands().isEmpty()) {
+            command.getSubcommands().forEach(subcommand -> builder.addSubcommand(getCommandLineForCommand(subcommand)));
+        }
+        return builder.build();
     }
 
     @Override
-    public Integer parse() {
-        if (vgrCommand.getOriginalArguments() == null) {
-            return 1;
+    public void parse(CommandExecution commandExecution) {
+        if (command.getMetadata() == null) {
+            CommandExecutionError error = new CommandExecutionError();
+            error.setDisplayMessage("Unable to parse command line. Metadata not found for command.");
+            error.setFatal(true);
+            commandExecution.setState(CommandExecutionState.END);
+            commandExecution.getErrors().add(error);
+            commandExecution.setExitCode(1);
+            return;
         }
 
-        formatUsageHelp();
-        setSynopsis();
-        setDescription();
-        addHelpOption();
-        addVersionOption();
-        addDebugOption();
-        addQuietOption();
-        addNoInputOption();
-        CommandLine commandLine = new CommandLine(commandSpec);
-        return commandLine.execute(vgrCommand.getOriginalArguments());
+        if (command.getOriginalArguments() == null) {
+            CommandExecutionError error = new CommandExecutionError();
+            error.setDisplayMessage("Unable to parse command line. Original arguments not found for command.");
+            error.setFatal(true);
+            commandExecution.setState(CommandExecutionState.END);
+            commandExecution.getErrors().add(error);
+            commandExecution.setExitCode(1);
+            return;
+        }
+
+        CommandLine commandLine = getCommandLineForCommand(command);
+        ParseResult parseResult = commandLine.parseArgs(command.getOriginalArguments());
+
+        Queue<CommandLine> commandLineQueue = new ArrayDeque<>(parseResult.asCommandLineList());
+        while (!commandLineQueue.isEmpty()) {
+            CommandLine currentCommandLine = commandLineQueue.remove();
+
+            if (currentCommandLine.isUsageHelpRequested()) {
+                commandExecution.setState(CommandExecutionState.END);
+                commandExecution.setExitCode(handleUsageHelpRequested(currentCommandLine));
+                return;
+            }
+
+            if (currentCommandLine.isVersionHelpRequested()) {
+                commandExecution.setState(CommandExecutionState.END);
+                commandExecution.setExitCode(handleVersionHelpRequested(currentCommandLine));
+                return;
+            }
+
+            ParseResult currentParseResult = currentCommandLine.getParseResult();
+            VgrCommand currentCommand = getCommandForParseResult(currentParseResult);
+            if (currentCommand == null) {
+                CommandExecutionError error = new CommandExecutionError();
+                error.setDisplayMessage("Unable to parse command line. Command not found.");
+                error.setFatal(true);
+                commandExecution.setState(CommandExecutionState.END);
+                commandExecution.getErrors().add(error);
+                commandExecution.setExitCode(1);
+                return;
+            }
+
+            if (currentParseResult.expandedArgs().isEmpty() &&
+                    !currentCommand.getMetadata().getExecutesWithoutArguments()) {
+                commandExecution.setState(CommandExecutionState.END);
+                commandExecution.setExitCode(handleUsageHelpRequested(currentCommandLine));
+            }
+
+            if (currentCommand.getPositionalParameters() != null && !currentCommand.getPositionalParameters().isEmpty()) {
+                setPositionalParameterValues(currentCommand.getPositionalParameters(), currentParseResult);
+            }
+
+            if (currentCommand.getOptions() != null && !currentCommand.getOptions().isEmpty()) {
+                setOptionValues(currentCommand.getOptions(), currentParseResult);
+            }
+
+            if (commandLineQueue.isEmpty()) {
+                commandExecution.setExecutedCommand(currentCommand);
+                return;
+            }
+        }
     }
 }
+    

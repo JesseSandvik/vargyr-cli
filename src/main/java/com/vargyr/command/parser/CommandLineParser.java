@@ -1,5 +1,7 @@
 package com.vargyr.command.parser;
 
+import com.vargyr.command.execution.CommandExecution;
+
 public interface CommandLineParser {
-    Integer parse();
+    void parse(CommandExecution commandExecution);
 }

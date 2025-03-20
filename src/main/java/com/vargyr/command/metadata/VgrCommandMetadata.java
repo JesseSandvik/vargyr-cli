@@ -15,5 +15,5 @@ public class VgrCommandMetadata {
     private String synopsis;
     private String description;
     private String executableFilePath;
-    private Boolean executesWithoutArguments;
+    private Boolean executesWithoutArguments = true;
 }
