@@ -43,7 +43,7 @@ public class PicocliCommandLineBuilderTest {
     }
 
     @Test
-    void testSetSynopsis() {
+    void testSetSynopsisWhenSynopsisValid() {
         String synopsis = "test synopsis";
         when(commandSpec.usageMessage()).thenReturn(usageMessageSpec);
         builder.setSynopsis(synopsis);
@@ -69,7 +69,7 @@ public class PicocliCommandLineBuilderTest {
     }
 
     @Test
-    void testSetDescription() {
+    void testSetDescriptionWhenDescriptionValid() {
         String description = "test description";
         when(commandSpec.usageMessage()).thenReturn(usageMessageSpec);
         builder.setDescription(description);
@@ -158,7 +158,7 @@ public class PicocliCommandLineBuilderTest {
     }
 
     @Test
-    void testAddPositionalParameter() {
+    void testAddPositionalParameterWhenPositionalParameterLabelValidSynopsisValid() {
         PositionalParameter positionalParameter = new PositionalParameter();
         positionalParameter.setLabel("testA");
         positionalParameter.setSynopsis("Test paramA synopsis");
@@ -248,7 +248,7 @@ public class PicocliCommandLineBuilderTest {
     }
 
     @Test
-    void testAddOption() {
+    void testAddOptionWhenOptionLongNameValidSynopsisValid() {
         Option option = new Option();
         option.setLongName("option-a");
         option.setSynopsis("Test option-a synopsis");

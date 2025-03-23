@@ -18,11 +18,8 @@ public class OptionSpecBuilderUtility {
     }
 
     public static void setOptionSpecBuilderTypeForOption(Option option, OptionSpec.Builder optionSpecBuilder) {
-        if (option == null) {
-            return;
-        }
-
-        if (StringUtils.isNotEmpty(option.getArgumentLabel()) && !option.getArgumentLabel().isBlank()) {
+        if (option != null &&
+                StringUtils.isNotEmpty(option.getArgumentLabel()) && !option.getArgumentLabel().isBlank()) {
             optionSpecBuilder
                     .paramLabel(option.getArgumentLabel())
                     .type(String.class);

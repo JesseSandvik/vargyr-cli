@@ -38,7 +38,7 @@ public class Main {
                 "--test-opt-a",
                 "a",
                 "A test option.",
-                null,
+                "<labelA>",
                 null
         );
         options.add(o);
