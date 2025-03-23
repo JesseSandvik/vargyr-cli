@@ -115,4 +115,49 @@ public class PicocliCommandLineBuilderTest {
         builder.addPositionalParameter(positionalParameter);
         verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
     }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterLabelEmptySynopsisValid() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setLabel("");
+        positionalParameter.setSynopsis("Test paramA synopsis");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterLabelBlankSynopsisValid() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setLabel("    ");
+        positionalParameter.setSynopsis("Test paramA synopsis");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterLabelValidSynopsisIsEmpty() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setLabel("testA");
+        positionalParameter.setSynopsis("");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterLabelValidSynopsisIsBlank() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setLabel("testA");
+        positionalParameter.setSynopsis("     ");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameter() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setLabel("testA");
+        positionalParameter.setSynopsis("Test paramA synopsis");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(1)).addPositional(any(PositionalParamSpec.class));
+    }
 }
