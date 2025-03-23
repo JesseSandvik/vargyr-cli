@@ -19,6 +19,8 @@ public class PicocliCommandLineBuilderTest {
     @Mock
     private CommandSpec commandSpec;
 
+    private final UsageMessageSpec usageMessageSpec = mock(UsageMessageSpec.class);
+
     @Test
     void testSetSynopsisWhenSynopsisIsNull() {
         builder.setSynopsis(null);
@@ -40,7 +42,7 @@ public class PicocliCommandLineBuilderTest {
     @Test
     void testSetSynopsis() {
         String synopsis = "test synopsis";
-        when(commandSpec.usageMessage()).thenReturn(mock(UsageMessageSpec.class));
+        when(commandSpec.usageMessage()).thenReturn(usageMessageSpec);
         builder.setSynopsis(synopsis);
         verify(commandSpec, times(1)).usageMessage();
     }
@@ -66,7 +68,7 @@ public class PicocliCommandLineBuilderTest {
     @Test
     void testSetDescription() {
         String description = "test description";
-        when(commandSpec.usageMessage()).thenReturn(mock(UsageMessageSpec.class));
+        when(commandSpec.usageMessage()).thenReturn(usageMessageSpec);
         builder.setDescription(description);
         verify(commandSpec, times(1)).usageMessage();
     }
