@@ -61,21 +61,9 @@ public class PicocliCommandLineBuilder {
         if (option != null &&
                 StringUtils.isNotEmpty(option.getLongName()) && !option.getLongName().isBlank() &&
                 StringUtils.isNotEmpty(option.getSynopsis()) && !option.getSynopsis().isBlank()) {
-            OptionSpec.Builder optionSpecBuilder = null;
-            if (StringUtils.isNotEmpty(option.getShortName()) && !option.getShortName().isBlank()) {
-                optionSpecBuilder = OptionSpec.builder(option.getShortName(), option.getLongName());
-            } else {
-                optionSpecBuilder = OptionSpec.builder(option.getLongName());
-            }
+            OptionSpec.Builder optionSpecBuilder = OptionSpecBuilderUtility.getOptionSpecBuilderForOption(option);
             optionSpecBuilder.description(option.getSynopsis());
-
-            if (StringUtils.isNotEmpty(option.getArgumentLabel()) && !option.getArgumentLabel().isBlank()) {
-                optionSpecBuilder
-                        .paramLabel(option.getArgumentLabel())
-                        .type(String.class);
-            } else {
-                optionSpecBuilder.type(Boolean.class);
-            }
+            OptionSpecBuilderUtility.setOptionSpecBuilderTypeForOption(option, optionSpecBuilder);
             commandSpec.addOption(optionSpecBuilder.build());
         }
         return this;

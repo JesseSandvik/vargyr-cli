@@ -22,6 +22,8 @@ public class PicocliCommandLineBuilderTest {
 
     private final UsageMessageSpec usageMessageSpec = mock(UsageMessageSpec.class);
 
+    private final OptionSpec.Builder optionSpecBuilder = mock(OptionSpec.Builder.class);
+
     @Test
     void testSetSynopsisWhenSynopsisNull() {
         builder.setSynopsis(null);
