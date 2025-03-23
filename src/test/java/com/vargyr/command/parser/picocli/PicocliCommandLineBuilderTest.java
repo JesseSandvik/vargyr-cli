@@ -1,5 +1,6 @@
 package com.vargyr.command.parser.picocli;
 
+import com.vargyr.command.PositionalParameter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -68,5 +69,50 @@ public class PicocliCommandLineBuilderTest {
         when(commandSpec.usageMessage()).thenReturn(mock(UsageMessageSpec.class));
         builder.setDescription(description);
         verify(commandSpec, times(1)).usageMessage();
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterIsNull() {
+        builder.addPositionalParameter(null);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterAttributesAreNull() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterLabelIsEmpty() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setLabel("");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterLabelIsBlank() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setLabel("    ");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterSynopsisIsEmpty() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setSynopsis("");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
+    }
+
+    @Test
+    void testAddPositionalParameterWhenPositionalParameterSynopsisIsBlank() {
+        PositionalParameter positionalParameter = new PositionalParameter();
+        positionalParameter.setSynopsis("     ");
+        builder.addPositionalParameter(positionalParameter);
+        verify(commandSpec, times(0)).addPositional(any(PositionalParamSpec.class));
     }
 }

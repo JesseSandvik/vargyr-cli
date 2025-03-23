@@ -43,7 +43,12 @@ public class PicocliCommandLineBuilder {
     }
 
     public PicocliCommandLineBuilder addPositionalParameter(PositionalParameter positionalParameter) {
-        if (positionalParameter.getLabel() != null && positionalParameter.getSynopsis() != null) {
+        if (positionalParameter != null &&
+                StringUtils.isNotEmpty(positionalParameter.getLabel()) &&
+                !positionalParameter.getLabel().isBlank() &&
+                StringUtils.isNotEmpty(positionalParameter.getSynopsis()) &&
+                !positionalParameter.getSynopsis().isBlank()
+        ) {
             commandSpec.addPositional(PositionalParamSpec
                     .builder()
                     .paramLabel(positionalParameter.getLabel())
