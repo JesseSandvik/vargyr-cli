@@ -47,8 +47,7 @@ public class PicocliCommandLineBuilder {
                 StringUtils.isNotEmpty(positionalParameter.getLabel()) &&
                 !positionalParameter.getLabel().isBlank() &&
                 StringUtils.isNotEmpty(positionalParameter.getSynopsis()) &&
-                !positionalParameter.getSynopsis().isBlank()
-        ) {
+                !positionalParameter.getSynopsis().isBlank()) {
             commandSpec.addPositional(PositionalParamSpec
                     .builder()
                     .paramLabel(positionalParameter.getLabel())
@@ -59,16 +58,18 @@ public class PicocliCommandLineBuilder {
     }
 
     public PicocliCommandLineBuilder addOption(Option option) {
-        if (option.getLongName() != null && option.getSynopsis() != null) {
+        if (option != null &&
+                StringUtils.isNotEmpty(option.getLongName()) && !option.getLongName().isBlank() &&
+                StringUtils.isNotEmpty(option.getSynopsis()) && !option.getSynopsis().isBlank()) {
             OptionSpec.Builder optionSpecBuilder = null;
-            if (option.getShortName() != null) {
+            if (StringUtils.isNotEmpty(option.getShortName()) && !option.getShortName().isBlank()) {
                 optionSpecBuilder = OptionSpec.builder(option.getShortName(), option.getLongName());
             } else {
                 optionSpecBuilder = OptionSpec.builder(option.getLongName());
             }
             optionSpecBuilder.description(option.getSynopsis());
 
-            if (option.getArgumentLabel() != null) {
+            if (StringUtils.isNotEmpty(option.getArgumentLabel()) && !option.getArgumentLabel().isBlank()) {
                 optionSpecBuilder
                         .paramLabel(option.getArgumentLabel())
                         .type(String.class);
