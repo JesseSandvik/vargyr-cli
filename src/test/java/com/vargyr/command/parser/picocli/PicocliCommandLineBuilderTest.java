@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import picocli.CommandLine;
 import picocli.CommandLine.Model.*;
 
 import static org.mockito.Mockito.*;
@@ -21,8 +22,6 @@ public class PicocliCommandLineBuilderTest {
     private CommandSpec commandSpec;
 
     private final UsageMessageSpec usageMessageSpec = mock(UsageMessageSpec.class);
-
-    private final OptionSpec.Builder optionSpecBuilder = mock(OptionSpec.Builder.class);
 
     @Test
     void testSetSynopsisWhenSynopsisNull() {
@@ -254,5 +253,61 @@ public class PicocliCommandLineBuilderTest {
         option.setSynopsis("Test option-a synopsis");
         builder.addOption(option);
         verify(commandSpec, times(1)).addOption(any(OptionSpec.class));
+    }
+
+    @Test
+    void testAddVersionOptionWhenVersionNull() {
+        builder.addVersionOption(null);
+        verify(commandSpec, times(0)).version(any(String.class));
+        verify(commandSpec, times(0)).addOption(any(OptionSpec.class));
+    }
+
+    @Test
+    void testAddVersionOptionWhenVersionEmpty() {
+        builder.addVersionOption("");
+        verify(commandSpec, times(0)).version(any(String.class));
+        verify(commandSpec, times(0)).addOption(any(OptionSpec.class));
+    }
+
+    @Test
+    void testAddVersionOptionWhenVersionBlank() {
+        builder.addVersionOption("    ");
+        verify(commandSpec, times(0)).version(any(String.class));
+        verify(commandSpec, times(0)).addOption(any(OptionSpec.class));
+    }
+
+    @Test
+    void testAddVersionOptionWhenVersionValid() {
+        builder.addVersionOption("1.2.3");
+        verify(commandSpec, times(1)).version(any(String.class));
+        verify(commandSpec, times(1)).addOption(any(OptionSpec.class));
+    }
+
+    @Test
+    void testAddSubcommandWhenCommandLineNull() {
+        builder.addSubcommand(null);
+        verify(commandSpec, times(0)).addSubcommand(any(String.class), any(CommandLine.class));
+    }
+
+    @Test
+    void testAddSubcommandWhenCommandLineNameEmpty() {
+        CommandLine commandLine = new CommandLine(CommandSpec.create().name(""));
+        builder.addSubcommand(commandLine);
+        verify(commandSpec, times(0)).addSubcommand(any(String.class), any(CommandLine.class));
+    }
+
+    @Test
+    void testAddSubcommandWhenCommandLineNameBlank() {
+        CommandLine commandLine = new CommandLine(CommandSpec.create().name("     "));
+        builder.addSubcommand(commandLine);
+        verify(commandSpec, times(0)).addSubcommand(any(String.class), any(CommandLine.class));
+    }
+
+    @Test
+    void testAddSubcommandWhenCommandLineNameValid() {
+        String expected = "test-subcommand";
+        CommandLine commandLine = new CommandLine(CommandSpec.create().name(expected));
+        builder.addSubcommand(commandLine);
+        verify(commandSpec, times(1)).addSubcommand(eq(expected), eq(commandLine));
     }
 }

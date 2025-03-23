@@ -93,7 +93,7 @@ public class PicocliCommandLineBuilder {
     }
 
     public PicocliCommandLineBuilder addDebugOption() {
-        commandSpec.addOption(CommandLine.Model.OptionSpec
+        commandSpec.addOption(OptionSpec
                 .builder("--debug")
                 .description("Show debugging output.")
                 .build()
@@ -102,7 +102,7 @@ public class PicocliCommandLineBuilder {
     }
 
     public PicocliCommandLineBuilder addQuietOption() {
-        commandSpec.addOption(CommandLine.Model.OptionSpec
+        commandSpec.addOption(OptionSpec
                 .builder("--quiet")
                 .description("Show minimal output.")
                 .build()
@@ -111,7 +111,7 @@ public class PicocliCommandLineBuilder {
     }
 
     public PicocliCommandLineBuilder addNoInputOption() {
-        commandSpec.addOption(CommandLine.Model.OptionSpec
+        commandSpec.addOption(OptionSpec
                 .builder("--no-input")
                 .description("Disable interactive prompts.")
                 .build()
@@ -120,7 +120,11 @@ public class PicocliCommandLineBuilder {
     }
 
     public PicocliCommandLineBuilder addSubcommand(CommandLine commandLine) {
-        commandSpec.addSubcommand(commandLine.getCommandName(), commandLine);
+        if (commandLine != null &&
+                StringUtils.isNotEmpty(commandLine.getCommandName()) &&
+                !commandLine.getCommandName().isBlank()) {
+            commandSpec.addSubcommand(commandLine.getCommandName(), commandLine);
+        }
         return this;
     }
 
