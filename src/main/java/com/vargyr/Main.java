@@ -56,8 +56,7 @@ public class Main {
         subcommands.add(subcommand);
         command.setSubcommands(subcommands);
 
-        command.setOriginalArguments(args);
-        CommandOrchestrator processor = new CommandOrchestrator(command);
+        CommandOrchestrator processor = new CommandOrchestrator(command, args);
         int exitCode = processor.run();
         System.exit(exitCode);
     }

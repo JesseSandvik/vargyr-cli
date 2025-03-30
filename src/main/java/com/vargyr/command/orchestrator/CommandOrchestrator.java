@@ -9,11 +9,12 @@ import java.util.ArrayList;
 public class CommandOrchestrator {
     private final CommandExecution commandExecution;
 
-    public CommandOrchestrator(VgrCommand baseCommand) {
+    public CommandOrchestrator(VgrCommand rootCommand, String[] originalArguments) {
         this.commandExecution = new CommandExecution(
                 CommandExecutionState.INITIAL,
-                baseCommand,
-                baseCommand,
+                originalArguments,
+                rootCommand,
+                rootCommand,
                 0,
                 new ArrayList<>()
         );

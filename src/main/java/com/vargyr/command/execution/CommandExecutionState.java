@@ -26,23 +26,23 @@ public enum CommandExecutionState {
         @Override
         public void processCurrentState(CommandExecution commandExecution) {
             LOGGER.info("parsing command line");
-            PicocliCommandLineParser parser = new PicocliCommandLineParser(commandExecution.getExecutedCommand());
+            PicocliCommandLineParser parser = new PicocliCommandLineParser(commandExecution);
             parser.parse(commandExecution);
         }
 
         @Override
         public CommandExecutionState transitionToNextState() {
             LOGGER.info("transitioning to call command state");
-            return CALL_COMMAND;
+            return CALL_INVOKED_COMMAND;
         }
     },
 
-    CALL_COMMAND {
+    CALL_INVOKED_COMMAND {
         @Override
         public void processCurrentState(CommandExecution commandExecution) {
             try {
                 LOGGER.info("calling command");
-                commandExecution.setExitCode(commandExecution.getExecutedCommand().call());
+                commandExecution.setExitCode(commandExecution.getInvokedCommand().call());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

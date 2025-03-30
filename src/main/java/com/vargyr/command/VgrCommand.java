@@ -14,5 +14,4 @@ public abstract class VgrCommand implements Callable<Integer> {
     private List<PositionalParameter> positionalParameters;
     private List<Option> options;
     private List<VgrCommand> subcommands;
-    private String[] originalArguments;
 }

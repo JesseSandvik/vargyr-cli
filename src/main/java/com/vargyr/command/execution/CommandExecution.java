@@ -1,7 +1,6 @@
 package com.vargyr.command.execution;
 
 import com.vargyr.command.VgrCommand;
-import com.vargyr.command.execution.error.CommandExecutionError;
 import lombok.*;
 
 import java.util.List;
@@ -12,8 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 public class CommandExecution {
     private CommandExecutionState state;
-    private VgrCommand baseCommand;
-    private VgrCommand executedCommand;
+    private String[] originalArguments;
+    private VgrCommand rootCommand;
+    private VgrCommand invokedCommand;
     private Integer exitCode;
     private List<CommandExecutionError> errors;
 }

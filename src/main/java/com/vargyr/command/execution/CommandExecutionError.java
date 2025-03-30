@@ -1,6 +1,5 @@
-package com.vargyr.command.execution.error;
+package com.vargyr.command.execution;
 
-import com.vargyr.command.execution.CommandExecutionState;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

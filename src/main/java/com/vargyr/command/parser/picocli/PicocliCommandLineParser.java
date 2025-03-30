@@ -5,7 +5,7 @@ import com.vargyr.command.PositionalParameter;
 import com.vargyr.command.VgrCommand;
 import com.vargyr.command.execution.CommandExecution;
 import com.vargyr.command.execution.CommandExecutionState;
-import com.vargyr.command.execution.error.CommandExecutionError;
+import com.vargyr.command.execution.CommandExecutionError;
 import com.vargyr.command.parser.CommandLineParser;
 
 import io.micronaut.core.util.StringUtils;
@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Queue;
 
 public class PicocliCommandLineParser implements CommandLineParser {
-    private final VgrCommand command;
+    private final CommandExecution commandExecution;
 
-    public PicocliCommandLineParser(VgrCommand command) {
-        this.command = command;
+    public PicocliCommandLineParser(CommandExecution commandExecution) {
+        this.commandExecution = commandExecution;
     }
 
     private Integer handleUsageHelpRequested(CommandLine commandLine) {
@@ -37,13 +37,13 @@ public class PicocliCommandLineParser implements CommandLineParser {
 
     private VgrCommand getCommandForParseResult(ParseResult parseResult) {
         String commandName = parseResult.commandSpec().name();
-        if (StringUtils.isNotEmpty(command.getMetadata().getName()) &&
-                commandName.equalsIgnoreCase(command.getMetadata().getName())) {
-            return command;
+        if (StringUtils.isNotEmpty(commandExecution.getRootCommand().getMetadata().getName()) &&
+                commandName.equalsIgnoreCase(commandExecution.getRootCommand().getMetadata().getName())) {
+            return commandExecution.getRootCommand();
         }
 
-        if (!command.getSubcommands().isEmpty()) {
-            Queue<VgrCommand> commandQueue = new ArrayDeque<>(command.getSubcommands());
+        if (!commandExecution.getRootCommand().getSubcommands().isEmpty()) {
+            Queue<VgrCommand> commandQueue = new ArrayDeque<>(commandExecution.getRootCommand().getSubcommands());
             while (!commandQueue.isEmpty()) {
                 VgrCommand currentCommand = commandQueue.remove();
                 if (StringUtils.isNotEmpty(currentCommand.getMetadata().getName()) &&
@@ -111,7 +111,7 @@ public class PicocliCommandLineParser implements CommandLineParser {
 
     @Override
     public void parse(CommandExecution commandExecution) {
-        if (command.getMetadata() == null) {
+        if (commandExecution.getRootCommand().getMetadata() == null) {
             CommandExecutionError error = new CommandExecutionError();
             error.setDisplayMessage("Unable to parse command line. Metadata not found for command.");
             error.setFatal(true);
@@ -121,7 +121,7 @@ public class PicocliCommandLineParser implements CommandLineParser {
             return;
         }
 
-        if (command.getOriginalArguments() == null) {
+        if (commandExecution.getOriginalArguments() == null) {
             CommandExecutionError error = new CommandExecutionError();
             error.setDisplayMessage("Unable to parse command line. Original arguments not found for command.");
             error.setFatal(true);
@@ -131,8 +131,8 @@ public class PicocliCommandLineParser implements CommandLineParser {
             return;
         }
 
-        CommandLine commandLine = getCommandLineForCommand(command);
-        ParseResult parseResult = commandLine.parseArgs(command.getOriginalArguments());
+        CommandLine commandLine = getCommandLineForCommand(commandExecution.getRootCommand());
+        ParseResult parseResult = commandLine.parseArgs(commandExecution.getOriginalArguments());
 
         Queue<CommandLine> commandLineQueue = new ArrayDeque<>(parseResult.asCommandLineList());
         while (!commandLineQueue.isEmpty()) {
@@ -177,7 +177,7 @@ public class PicocliCommandLineParser implements CommandLineParser {
             }
 
             if (commandLineQueue.isEmpty()) {
-                commandExecution.setExecutedCommand(currentCommand);
+                commandExecution.setInvokedCommand(currentCommand);
                 return;
             }
         }
