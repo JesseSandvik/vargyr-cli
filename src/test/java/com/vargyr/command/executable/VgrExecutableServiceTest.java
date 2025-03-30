@@ -11,7 +11,7 @@ import java.util.List;
 public class VgrExecutableServiceTest {
 
     @Test
-    void testAddPositionalParametersToCommandNoPositionalParameters() {
+    public void testAddPositionalParametersToCommandNoPositionalParameters() {
         List<PositionalParameter> positionalParameters = new ArrayList<>();
         List<String> command = new ArrayList<>();
 
@@ -20,7 +20,7 @@ public class VgrExecutableServiceTest {
     }
 
     @Test
-    void testAddPositionalParametersToCommandOnePositionalParameter() {
+    public void testAddPositionalParametersToCommandOnePositionalParameter() {
         List<PositionalParameter> positionalParameters = new ArrayList<>();
         PositionalParameter positionalParameterA = new PositionalParameter(
                 "test A",
@@ -35,7 +35,7 @@ public class VgrExecutableServiceTest {
     }
 
     @Test
-    void testAddPositionalParametersToCommandMultiplePositionalParameters() {
+    public void testAddPositionalParametersToCommandMultiplePositionalParameters() {
         List<PositionalParameter> positionalParameters = new ArrayList<>();
         PositionalParameter positionalParameterA = new PositionalParameter(
                 "test A",
@@ -56,7 +56,7 @@ public class VgrExecutableServiceTest {
     }
 
     @Test
-    void testAddOptionsToCommandNoOptions() {
+    public void testAddOptionsToCommandNoOptions() {
         List<Option> options = new ArrayList<>();
         List<String> command = new ArrayList<>();
 
@@ -65,7 +65,7 @@ public class VgrExecutableServiceTest {
     }
 
     @Test
-    void testAddOptionsToCommandOneOption() {
+    public void testAddOptionsToCommandOneOption() {
         List<Option> options = new ArrayList<>();
         Option optionA = new Option(
                 "optionA",
@@ -83,7 +83,7 @@ public class VgrExecutableServiceTest {
     }
 
     @Test
-    void testAddOptionsToCommandMultipleOptions() {
+    public void testAddOptionsToCommandMultipleOptions() {
         List<Option> options = new ArrayList<>();
         Option optionA = new Option(
                 "optionA",
