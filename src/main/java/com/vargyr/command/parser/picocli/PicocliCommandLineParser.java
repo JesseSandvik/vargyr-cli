@@ -4,6 +4,7 @@ import com.vargyr.command.Option;
 import com.vargyr.command.PositionalParameter;
 import com.vargyr.command.VgrCommand;
 import com.vargyr.command.execution.CommandExecution;
+import com.vargyr.command.execution.CommandExecutionErrorManager;
 import com.vargyr.command.execution.CommandExecutionState;
 import com.vargyr.command.execution.CommandExecutionError;
 import com.vargyr.command.parser.CommandLineParser;
@@ -112,22 +113,12 @@ public class PicocliCommandLineParser implements CommandLineParser {
     @Override
     public void parse(CommandExecution commandExecution) {
         if (commandExecution.getRootCommand().getMetadata() == null) {
-            CommandExecutionError error = new CommandExecutionError();
-            error.setDisplayMessage("Unable to parse command line. Metadata not found for command.");
-            error.setFatal(true);
-            commandExecution.setState(CommandExecutionState.END);
-            commandExecution.getErrors().add(error);
-            commandExecution.setExitCode(1);
+            CommandExecutionErrorManager.setFatal(commandExecution, "metadata not found for root command");
             return;
         }
 
         if (commandExecution.getOriginalArguments() == null) {
-            CommandExecutionError error = new CommandExecutionError();
-            error.setDisplayMessage("Unable to parse command line. Original arguments not found for command.");
-            error.setFatal(true);
-            commandExecution.setState(CommandExecutionState.END);
-            commandExecution.getErrors().add(error);
-            commandExecution.setExitCode(1);
+            CommandExecutionErrorManager.setFatal(commandExecution, "original arguments not found for command execution");
             return;
         }
 

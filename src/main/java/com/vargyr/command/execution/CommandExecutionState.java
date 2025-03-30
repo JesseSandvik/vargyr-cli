@@ -15,12 +15,29 @@ public enum CommandExecutionState {
         @Override
         public CommandExecutionState transitionToNextState() {
             LOGGER.info("transitioning to next command processor state");
-            return PARSE_COMMAND_LINE;
+            return VALIDATE_COMMAND_EXECUTION;
         }
     },
 
 //    TODO: Get metadata, parameters, options, & subcommands from REST API call or config file as fallback
 //    TODO: Set metadata, parameters, options, & subcommands
+
+    VALIDATE_COMMAND_EXECUTION {
+        @Override
+        public void processCurrentState(CommandExecution commandExecution) {
+            CommandExecutionValidationState commandExecutionValidationState = CommandExecutionValidationState.INITIAL;
+            while (commandExecution.getExitCode() == 0 &&
+                    commandExecutionValidationState != CommandExecutionValidationState.END) {
+                commandExecutionValidationState.validate(commandExecution);
+                commandExecutionValidationState = commandExecutionValidationState.transitionToNextState();
+            }
+        }
+
+        @Override
+        public CommandExecutionState transitionToNextState() {
+            return PARSE_COMMAND_LINE;
+        }
+    },
 
     PARSE_COMMAND_LINE {
         @Override
