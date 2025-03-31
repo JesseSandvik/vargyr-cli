@@ -9,6 +9,7 @@ public class CommandExecutionErrorManager {
             String errorMessage
     ) {
         CommandExecutionError error = new CommandExecutionError();
+        error.setOccurredState(commandExecution.getState());
         error.setDisplayMessage(ErrorMessagePrefix.FATAL.getPrefix() + errorMessage);
         error.setDetails(ErrorMessagePrefix.FATAL.getPrefix() + errorMessage);
         error.setFatal(true);
