@@ -12,11 +12,11 @@ public enum CommandExecutionValidationState {
 
         @Override
         public CommandExecutionValidationState transitionToNextState() {
-            return executeNextStateTransition(this, ORIGINAL_ARGUMENTS);
+            return executeNextStateTransition(this, VALIDATE_ORIGINAL_ARGUMENTS);
         }
     },
 
-    ORIGINAL_ARGUMENTS {
+    VALIDATE_ORIGINAL_ARGUMENTS {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getOriginalArguments() == null) {
@@ -29,11 +29,11 @@ public enum CommandExecutionValidationState {
 
         @Override
         public CommandExecutionValidationState transitionToNextState() {
-            return executeNextStateTransition(this, ROOT_COMMAND);
+            return executeNextStateTransition(this, VALIDATE_ROOT_COMMAND);
         }
     },
 
-    ROOT_COMMAND {
+    VALIDATE_ROOT_COMMAND {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getRootCommand() == null) {
@@ -46,11 +46,11 @@ public enum CommandExecutionValidationState {
 
         @Override
         public CommandExecutionValidationState transitionToNextState() {
-            return executeNextStateTransition(this, ROOT_COMMAND_METADATA);
+            return executeNextStateTransition(this, VALIDATE_ROOT_COMMAND_METADATA);
         }
     },
 
-    ROOT_COMMAND_METADATA {
+    VALIDATE_ROOT_COMMAND_METADATA {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getRootCommand() == null) {
