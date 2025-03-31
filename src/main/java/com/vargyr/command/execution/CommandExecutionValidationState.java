@@ -1,6 +1,8 @@
 package com.vargyr.command.execution;
 
 import io.micronaut.core.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum CommandExecutionValidationState {
 
@@ -10,7 +12,7 @@ public enum CommandExecutionValidationState {
 
         @Override
         public CommandExecutionValidationState transitionToNextState() {
-            return ORIGINAL_ARGUMENTS;
+            return executeNextStateTransition(this, ORIGINAL_ARGUMENTS);
         }
     },
 
@@ -20,14 +22,14 @@ public enum CommandExecutionValidationState {
             if (commandExecution.getOriginalArguments() == null) {
                 CommandExecutionErrorManager.setFatal(
                         commandExecution,
-                        "original arguments not set for command execution"
+                        "original arguments not set"
                 );
             }
         }
 
         @Override
         public CommandExecutionValidationState transitionToNextState() {
-            return ROOT_COMMAND;
+            return executeNextStateTransition(this, ROOT_COMMAND);
         }
     },
 
@@ -37,14 +39,14 @@ public enum CommandExecutionValidationState {
             if (commandExecution.getRootCommand() == null) {
                 CommandExecutionErrorManager.setFatal(
                         commandExecution,
-                        "root command not set for command execution"
+                        "root command not set"
                 );
             }
         }
 
         @Override
         public CommandExecutionValidationState transitionToNextState() {
-            return ROOT_COMMAND_METADATA;
+            return executeNextStateTransition(this, ROOT_COMMAND_METADATA);
         }
     },
 
@@ -54,7 +56,7 @@ public enum CommandExecutionValidationState {
             if (commandExecution.getRootCommand() == null) {
                 CommandExecutionErrorManager.setFatal(
                         commandExecution,
-                        "metadata not set for command execution root command"
+                        "metadata not set for root command"
                 );
                 return;
             }
@@ -63,14 +65,14 @@ public enum CommandExecutionValidationState {
             commandExecution.getRootCommand().getMetadata().getName().isBlank()) {
                 CommandExecutionErrorManager.setFatal(
                         commandExecution,
-                        "root command metadata 'name' not set for command execution root command"
+                        "'name' not set for root command metadata"
                 );
             }
         }
 
         @Override
         public CommandExecutionValidationState transitionToNextState() {
-            return END;
+            return executeNextStateTransition(this, END);
         }
     },
 
@@ -83,6 +85,16 @@ public enum CommandExecutionValidationState {
             return END;
         }
     };
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutionState.class.getName());
+
+    private static CommandExecutionValidationState executeNextStateTransition(
+            CommandExecutionValidationState currentState,
+            CommandExecutionValidationState nextState
+    ) {
+        LOGGER.debug("transitioning command execution validation state from: {} to: {}", currentState, nextState);
+        return nextState;
+    }
 
     public abstract void validate(CommandExecution commandExecution);
     public abstract CommandExecutionValidationState transitionToNextState();

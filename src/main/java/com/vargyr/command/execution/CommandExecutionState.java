@@ -8,14 +8,11 @@ public enum CommandExecutionState {
 
     INITIAL {
         @Override
-        public void processCurrentState(CommandExecution commandExecution) {
-            LOGGER.info("initialized command processor");
-        }
+        public void processCurrentState(CommandExecution commandExecution) {}
 
         @Override
         public CommandExecutionState transitionToNextState() {
-            LOGGER.info("transitioning to next command processor state");
-            return VALIDATE_COMMAND_EXECUTION;
+            return executeNextStateTransition(this, VALIDATE_COMMAND_EXECUTION);
         }
     },
 
@@ -26,16 +23,20 @@ public enum CommandExecutionState {
         @Override
         public void processCurrentState(CommandExecution commandExecution) {
             CommandExecutionValidationState commandExecutionValidationState = CommandExecutionValidationState.INITIAL;
-            while (commandExecution.getExitCode() == 0 &&
-                    commandExecutionValidationState != CommandExecutionValidationState.END) {
+            while (commandExecutionValidationState != CommandExecutionValidationState.END) {
                 commandExecutionValidationState.validate(commandExecution);
+
+                if (commandExecution.getExitCode() != 0) {
+                    break;
+                }
+
                 commandExecutionValidationState = commandExecutionValidationState.transitionToNextState();
             }
         }
 
         @Override
         public CommandExecutionState transitionToNextState() {
-            return PARSE_COMMAND_LINE;
+            return executeNextStateTransition(this, PARSE_COMMAND_LINE);
         }
     },
 
@@ -49,8 +50,7 @@ public enum CommandExecutionState {
 
         @Override
         public CommandExecutionState transitionToNextState() {
-            LOGGER.info("transitioning to call command state");
-            return CALL_INVOKED_COMMAND;
+            return executeNextStateTransition(this, CALL_INVOKED_COMMAND);
         }
     },
 
@@ -67,25 +67,29 @@ public enum CommandExecutionState {
 
         @Override
         public CommandExecutionState transitionToNextState() {
-            LOGGER.info("transitioning to end state");
-            return END;
+            return executeNextStateTransition(this, END);
         }
     },
 
     END {
         @Override
-        public void processCurrentState(CommandExecution commandExecution) {
-            LOGGER.info("reached command processor end state");
-        }
+        public void processCurrentState(CommandExecution commandExecution) {}
 
         @Override
         public CommandExecutionState transitionToNextState() {
-            LOGGER.info("we done.");
             return END;
         }
     };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutionState.class.getName());
+
+    private static CommandExecutionState executeNextStateTransition(
+            CommandExecutionState currentState,
+            CommandExecutionState nextState
+    ) {
+        LOGGER.debug("transitioning command execution state from: {} to: {}", currentState, nextState);
+        return nextState;
+    }
 
     public abstract void processCurrentState(CommandExecution commandExecution);
     public abstract CommandExecutionState transitionToNextState();
