@@ -8,19 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-class MockCommand extends VgrCommand {
-    @Override
-    public Integer call() throws Exception {
-        return 0;
-    }
-}
-
 public class CommandExecutionValidationStateTest {
     private CommandExecution commandExecution;
 
     @BeforeEach
     public void setUp() {
         commandExecution = new CommandExecution();
+        commandExecution.setErrors(new ArrayList<>());
     }
 
     @Test
@@ -32,7 +26,6 @@ public class CommandExecutionValidationStateTest {
         Assertions.assertNull(commandExecution.getRootCommand());
         Assertions.assertNull(commandExecution.getInvokedCommand());
         Assertions.assertNull(commandExecution.getExitCode());
-        Assertions.assertNull(commandExecution.getErrors());
     }
 
     @Test
@@ -45,7 +38,6 @@ public class CommandExecutionValidationStateTest {
 
     @Test
     public void testValidateOriginalArgumentsValidateWhenNull() {
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ORIGINAL_ARGUMENTS.validate(commandExecution);
 
         Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
@@ -64,7 +56,6 @@ public class CommandExecutionValidationStateTest {
     @Test
     public void testValidateOriginalArgumentsValidateWhenEmpty() {
         commandExecution.setOriginalArguments(new String[0]);
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ORIGINAL_ARGUMENTS.validate(commandExecution);
 
         Assertions.assertNull(commandExecution.getState());
@@ -79,7 +70,6 @@ public class CommandExecutionValidationStateTest {
     public void testValidateOriginalArgumentsValidateWhenNotEmpty() {
         String[] originalArguments = {"Hello", ",", "World!"};
         commandExecution.setOriginalArguments(originalArguments);
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ORIGINAL_ARGUMENTS.validate(commandExecution);
 
         Assertions.assertNull(commandExecution.getState());
@@ -100,7 +90,6 @@ public class CommandExecutionValidationStateTest {
 
     @Test
     public void testValidateRootCommandWhenNull() {
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND.validate(commandExecution);
 
         Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
@@ -120,7 +109,6 @@ public class CommandExecutionValidationStateTest {
     public void testValidateRootCommandWhenNotNull() {
         VgrCommand rootCommand = new MockCommand();
         commandExecution.setRootCommand(rootCommand);
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND.validate(commandExecution);
 
         Assertions.assertNull(commandExecution.getState());
@@ -143,7 +131,6 @@ public class CommandExecutionValidationStateTest {
     public void testValidateRootCommandMetadataWhenNull() {
         VgrCommand rootCommand = new MockCommand();
         commandExecution.setRootCommand(rootCommand);
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
 
         Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
@@ -167,7 +154,6 @@ public class CommandExecutionValidationStateTest {
         VgrCommand rootCommand = new MockCommand();
         rootCommand.setMetadata(new VgrCommandMetadata());
         commandExecution.setRootCommand(rootCommand);
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
 
         Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
@@ -194,7 +180,6 @@ public class CommandExecutionValidationStateTest {
         VgrCommand rootCommand = new MockCommand();
         rootCommand.setMetadata(metadata);
         commandExecution.setRootCommand(rootCommand);
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
 
         Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
@@ -221,7 +206,6 @@ public class CommandExecutionValidationStateTest {
         VgrCommand rootCommand = new MockCommand();
         rootCommand.setMetadata(metadata);
         commandExecution.setRootCommand(rootCommand);
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
 
         Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
@@ -248,7 +232,6 @@ public class CommandExecutionValidationStateTest {
         VgrCommand rootCommand = new MockCommand();
         rootCommand.setMetadata(metadata);
         commandExecution.setRootCommand(rootCommand);
-        commandExecution.setErrors(new ArrayList<>());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
 
         Assertions.assertNull(commandExecution.getState());
@@ -266,6 +249,17 @@ public class CommandExecutionValidationStateTest {
         CommandExecutionValidationState actual =
                 CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.transitionToNextState();
         Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testEndValidate() {
+        CommandExecutionValidationState.END.validate(commandExecution);
+
+        Assertions.assertNull(commandExecution.getState());
+        Assertions.assertNull(commandExecution.getOriginalArguments());
+        Assertions.assertNull(commandExecution.getRootCommand());
+        Assertions.assertNull(commandExecution.getInvokedCommand());
+        Assertions.assertNull(commandExecution.getExitCode());
     }
 
     @Test
