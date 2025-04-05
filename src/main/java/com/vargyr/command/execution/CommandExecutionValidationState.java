@@ -53,7 +53,7 @@ public enum CommandExecutionValidationState {
     VALIDATE_ROOT_COMMAND_METADATA {
         @Override
         public void validate(CommandExecution commandExecution) {
-            if (commandExecution.getRootCommand() == null) {
+            if (commandExecution.getRootCommand().getMetadata() == null) {
                 CommandExecutionErrorManager.setFatal(
                         commandExecution,
                         "metadata not set for root command"

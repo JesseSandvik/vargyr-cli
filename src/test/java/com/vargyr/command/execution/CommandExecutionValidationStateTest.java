@@ -1,6 +1,7 @@
 package com.vargyr.command.execution;
 
 import com.vargyr.command.VgrCommand;
+import com.vargyr.command.metadata.VgrCommandMetadata;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -136,6 +137,127 @@ public class CommandExecutionValidationStateTest {
         CommandExecutionValidationState actual =
                 CommandExecutionValidationState.VALIDATE_ROOT_COMMAND.transitionToNextState();
         Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testValidateRootCommandMetadataWhenNull() {
+        VgrCommand rootCommand = new MockCommand();
+        commandExecution.setRootCommand(rootCommand);
+        commandExecution.setErrors(new ArrayList<>());
+        CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
+
+        Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
+        Assertions.assertNull(commandExecution.getOriginalArguments());
+        Assertions.assertNotNull(commandExecution.getRootCommand());
+        Assertions.assertNull(commandExecution.getRootCommand().getMetadata());
+        Assertions.assertNull(commandExecution.getInvokedCommand());
+        Assertions.assertNotEquals(0, commandExecution.getExitCode());
+
+        CommandExecutionError error = commandExecution.getErrors().getFirst();
+        Assertions.assertNull(error.getOccurredState());
+        Assertions.assertTrue(error.getFatal());
+        Assertions.assertTrue(error.getDisplayMessage().toLowerCase().contains("metadata"));
+        Assertions.assertTrue(error.getDisplayMessage().toLowerCase().contains("root command"));
+        Assertions.assertTrue(error.getDetails().toLowerCase().contains("metadata"));
+        Assertions.assertTrue(error.getDetails().toLowerCase().contains("root command"));
+    }
+
+    @Test
+    public void testValidateRootCommandMetadataWhenNameIsNull() {
+        VgrCommand rootCommand = new MockCommand();
+        rootCommand.setMetadata(new VgrCommandMetadata());
+        commandExecution.setRootCommand(rootCommand);
+        commandExecution.setErrors(new ArrayList<>());
+        CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
+
+        Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
+        Assertions.assertNull(commandExecution.getOriginalArguments());
+        Assertions.assertNotNull(commandExecution.getRootCommand());
+        Assertions.assertNotNull(commandExecution.getRootCommand().getMetadata());
+        Assertions.assertNull(commandExecution.getInvokedCommand());
+        Assertions.assertNotEquals(0, commandExecution.getExitCode());
+
+        CommandExecutionError error = commandExecution.getErrors().getFirst();
+        Assertions.assertNull(error.getOccurredState());
+        Assertions.assertTrue(error.getFatal());
+        Assertions.assertTrue(error.getDisplayMessage().toLowerCase().contains("metadata"));
+        Assertions.assertTrue(error.getDisplayMessage().toLowerCase().contains("root command"));
+        Assertions.assertTrue(error.getDetails().toLowerCase().contains("metadata"));
+        Assertions.assertTrue(error.getDetails().toLowerCase().contains("root command"));
+    }
+
+    @Test
+    public void testValidateRootCommandMetadataWhenNameIsEmpty() {
+        VgrCommandMetadata metadata = new VgrCommandMetadata();
+        metadata.setName("");
+
+        VgrCommand rootCommand = new MockCommand();
+        rootCommand.setMetadata(metadata);
+        commandExecution.setRootCommand(rootCommand);
+        commandExecution.setErrors(new ArrayList<>());
+        CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
+
+        Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
+        Assertions.assertNull(commandExecution.getOriginalArguments());
+        Assertions.assertNotNull(commandExecution.getRootCommand());
+        Assertions.assertNotNull(commandExecution.getRootCommand().getMetadata());
+        Assertions.assertNull(commandExecution.getInvokedCommand());
+        Assertions.assertNotEquals(0, commandExecution.getExitCode());
+
+        CommandExecutionError error = commandExecution.getErrors().getFirst();
+        Assertions.assertNull(error.getOccurredState());
+        Assertions.assertTrue(error.getFatal());
+        Assertions.assertTrue(error.getDisplayMessage().toLowerCase().contains("metadata"));
+        Assertions.assertTrue(error.getDisplayMessage().toLowerCase().contains("root command"));
+        Assertions.assertTrue(error.getDetails().toLowerCase().contains("metadata"));
+        Assertions.assertTrue(error.getDetails().toLowerCase().contains("root command"));
+    }
+
+    @Test
+    public void testValidateRootCommandMetadataWhenNameIsBlank() {
+        VgrCommandMetadata metadata = new VgrCommandMetadata();
+        metadata.setName("     ");
+
+        VgrCommand rootCommand = new MockCommand();
+        rootCommand.setMetadata(metadata);
+        commandExecution.setRootCommand(rootCommand);
+        commandExecution.setErrors(new ArrayList<>());
+        CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
+
+        Assertions.assertEquals(CommandExecutionState.END, commandExecution.getState());
+        Assertions.assertNull(commandExecution.getOriginalArguments());
+        Assertions.assertNotNull(commandExecution.getRootCommand());
+        Assertions.assertNotNull(commandExecution.getRootCommand().getMetadata());
+        Assertions.assertNull(commandExecution.getInvokedCommand());
+        Assertions.assertNotEquals(0, commandExecution.getExitCode());
+
+        CommandExecutionError error = commandExecution.getErrors().getFirst();
+        Assertions.assertNull(error.getOccurredState());
+        Assertions.assertTrue(error.getFatal());
+        Assertions.assertTrue(error.getDisplayMessage().toLowerCase().contains("metadata"));
+        Assertions.assertTrue(error.getDisplayMessage().toLowerCase().contains("root command"));
+        Assertions.assertTrue(error.getDetails().toLowerCase().contains("metadata"));
+        Assertions.assertTrue(error.getDetails().toLowerCase().contains("root command"));
+    }
+
+    @Test
+    public void testValidateRootCommandMetadata() {
+        VgrCommandMetadata metadata = new VgrCommandMetadata();
+        metadata.setName("test command");
+
+        VgrCommand rootCommand = new MockCommand();
+        rootCommand.setMetadata(metadata);
+        commandExecution.setRootCommand(rootCommand);
+        commandExecution.setErrors(new ArrayList<>());
+        CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
+
+        Assertions.assertNull(commandExecution.getState());
+        Assertions.assertNull(commandExecution.getOriginalArguments());
+        Assertions.assertNotNull(commandExecution.getRootCommand());
+        Assertions.assertNotNull(commandExecution.getRootCommand().getMetadata());
+        Assertions.assertNull(commandExecution.getInvokedCommand());
+        Assertions.assertNull(commandExecution.getExitCode());
+        Assertions.assertEquals(0, commandExecution.getErrors().size());
     }
 
     @Test
