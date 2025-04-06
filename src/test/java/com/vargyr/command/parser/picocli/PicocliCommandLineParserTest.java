@@ -103,4 +103,30 @@ public class PicocliCommandLineParserTest {
         verify(mockCommandExecution, times(1)).setState(eq(CommandExecutionState.END));
         verify(mockCommandExecution, times(1)).setExitCode(eq(0));
     }
+
+    @Test
+    public void testParseWhenCommandNotFound() {
+        doNothing().when(mockErrorManager).addFatalError(anyString());
+        when(mockCommandExecution.getErrorManager()).thenReturn(mockErrorManager);
+
+        String[] arguments = {"bad-command"};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        parser.parse();
+
+        verify(mockErrorManager, times(1)).addFatalError(anyString());
+    }
+
+    @Test
+    public void testParseWhenNoArgumentsAndCommandDoesNotExecuteWithoutArguments() {
+        when(mockMetadata.getName()).thenReturn("test-command");
+        when(mockMetadata.getExecutesWithoutArguments()).thenReturn(false);
+
+        String[] arguments = {};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        doNothing().when(mockCommandExecution).setState(eq(CommandExecutionState.END));
+        doNothing().when(mockCommandExecution).setExitCode(eq(0));
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setState(eq(CommandExecutionState.END));
+        verify(mockCommandExecution, times(1)).setExitCode(eq(0));
+    }
 }

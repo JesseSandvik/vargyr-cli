@@ -150,6 +150,7 @@ public class PicocliCommandLineParser implements CommandLineParser {
                         !currentCommand.getMetadata().getExecutesWithoutArguments()) {
                     commandExecution.setState(CommandExecutionState.END);
                     commandExecution.setExitCode(handleUsageHelpRequested(currentCommandLine));
+                    return;
                 }
 
                 if (currentCommand.getPositionalParameters() != null && !currentCommand.getPositionalParameters().isEmpty()) {
