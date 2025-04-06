@@ -7,6 +7,6 @@ import java.util.List;
 public interface CommandExecutionErrorManager {
     List<CommandExecutionError> getErrors();
     Boolean fatalErrorOccurred();
-    void addError(CommandExecution commandExecution, String message);
-    void addFatalError(CommandExecution commandExecution, String message);
+    void addError(String message);
+    void addFatalError(String message);
 }

@@ -19,14 +19,14 @@ public class VgrCommandExecutionValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        validator = new VgrCommandExecutionValidator();
+        validator = new VgrCommandExecutionValidator(mockCommandExecution);
         when(mockCommandExecution.getErrorManager()).thenReturn(mockErrorManager);
     }
 
     @Test
     public void testValidateWhenFatalErrorOccurred() {
         when(mockErrorManager.fatalErrorOccurred()).thenReturn(true);
-        validator.validate(mockCommandExecution);
+        validator.validate();
         verify(mockErrorManager, times(1)).fatalErrorOccurred();
         Assertions.assertEquals(CommandExecutionValidationState.END, validator.getState());
     }

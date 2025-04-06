@@ -21,7 +21,7 @@ public enum CommandExecutionState {
     VALIDATE_COMMAND_EXECUTION {
         @Override
         public void processCurrentState(CommandExecution commandExecution) {
-            commandExecution.getValidator().validate(commandExecution);
+            commandExecution.getValidator().validate();
         }
 
         @Override
@@ -48,7 +48,7 @@ public enum CommandExecutionState {
             try {
                 commandExecution.setExitCode(commandExecution.getInvokedCommand().call());
             } catch (Exception exception) {
-                commandExecution.getErrorManager().addError(commandExecution, exception.getMessage());
+                commandExecution.getErrorManager().addError(exception.getMessage());
             }
         }
 

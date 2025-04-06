@@ -20,8 +20,8 @@ public class CommandEngine {
     }
 
     private void initializeCommandExecution(CommandExecution commandExecution, String[] arguments) {
-        commandExecution.setErrorManager(new VgrCommandExecutionErrorManager());
-        commandExecution.setValidator(new VgrCommandExecutionValidator());
+        commandExecution.setErrorManager(new VgrCommandExecutionErrorManager(commandExecution));
+        commandExecution.setValidator(new VgrCommandExecutionValidator(commandExecution));
         commandExecution.setParser(new PicocliCommandLineParser(commandExecution));
         commandExecution.setState(CommandExecutionState.INITIAL);
         commandExecution.setOriginalArguments(arguments);

@@ -22,10 +22,7 @@ public enum CommandExecutionValidationState {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getOriginalArguments() == null) {
-                commandExecution.getErrorManager().addFatalError(
-                        commandExecution,
-                        "original arguments not set"
-                );
+                commandExecution.getErrorManager().addFatalError("original arguments not set");
             }
         }
 
@@ -39,10 +36,7 @@ public enum CommandExecutionValidationState {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getRootCommand() == null) {
-                commandExecution.getErrorManager().addFatalError(
-                        commandExecution,
-                        "root command not set"
-                );
+                commandExecution.getErrorManager().addFatalError("root command not set");
             }
         }
 
@@ -56,19 +50,13 @@ public enum CommandExecutionValidationState {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getRootCommand().getMetadata() == null) {
-                commandExecution.getErrorManager().addFatalError(
-                        commandExecution,
-                        "metadata not set for root command"
-                );
+                commandExecution.getErrorManager().addFatalError("metadata not set for root command");
                 return;
             }
 
             if (StringUtils.isEmpty(commandExecution.getRootCommand().getMetadata().getName()) ||
             commandExecution.getRootCommand().getMetadata().getName().isBlank()) {
-                commandExecution.getErrorManager().addFatalError(
-                        commandExecution,
-                        "'name' not set for root command metadata"
-                );
+                commandExecution.getErrorManager().addFatalError("'name' not set for root command metadata");
             }
         }
 

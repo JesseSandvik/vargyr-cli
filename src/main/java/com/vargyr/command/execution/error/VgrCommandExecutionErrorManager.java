@@ -9,9 +9,11 @@ import java.util.List;
 
 @Getter
 public class VgrCommandExecutionErrorManager implements CommandExecutionErrorManager {
+    private final CommandExecution commandExecution;
     private final List<CommandExecutionError> errors;
 
-    public VgrCommandExecutionErrorManager() {
+    public VgrCommandExecutionErrorManager(CommandExecution commandExecution) {
+        this.commandExecution = commandExecution;
         this.errors = new ArrayList<>();
     }
 
@@ -28,7 +30,7 @@ public class VgrCommandExecutionErrorManager implements CommandExecutionErrorMan
     }
 
     @Override
-    public void addError(CommandExecution commandExecution, String message) {
+    public void addError(String message) {
         CommandExecutionError error = new CommandExecutionError();
         error.setOccurredState(commandExecution.getState());
         error.setDisplayMessage(ErrorMessagePrefix.ERROR.getPrefix() + message);
@@ -39,7 +41,7 @@ public class VgrCommandExecutionErrorManager implements CommandExecutionErrorMan
     }
 
     @Override
-    public void addFatalError(CommandExecution commandExecution, String message) {
+    public void addFatalError(String message) {
         CommandExecutionError error = new CommandExecutionError();
         error.setOccurredState(commandExecution.getState());
         error.setDisplayMessage(ErrorMessagePrefix.FATAL.getPrefix() + message);

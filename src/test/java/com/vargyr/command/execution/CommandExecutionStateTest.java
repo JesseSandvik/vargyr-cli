@@ -46,11 +46,11 @@ public class CommandExecutionStateTest {
     @Test
     public void testValidateCommandExecutionProcess() {
         CommandExecutionValidator validator = mock(VgrCommandExecutionValidator.class);
-        doNothing().when(validator).validate(eq(commandExecution));
+        doNothing().when(validator).validate();
         commandExecution.setValidator(validator);
 
         CommandExecutionState.VALIDATE_COMMAND_EXECUTION.processCurrentState(commandExecution);
-        verify(validator, times(1)).validate(eq(commandExecution));
+        verify(validator, times(1)).validate();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class CommandExecutionStateTest {
 
     @Test
     public void testCallInvokedCommandProcessWhenException() throws Exception {
-        doNothing().when(mockErrorManager).addError(eq(commandExecution), anyString());
+        doNothing().when(mockErrorManager).addError(anyString());
         commandExecution.setErrorManager(mockErrorManager);
 
         when(mockCommand.call()).thenThrow(new Exception("error message"));
@@ -87,7 +87,7 @@ public class CommandExecutionStateTest {
         commandExecution.setState(CommandExecutionState.CALL_INVOKED_COMMAND);
 
         CommandExecutionState.CALL_INVOKED_COMMAND.processCurrentState(commandExecution);
-        verify(mockErrorManager, times(1)).addError(eq(commandExecution), anyString());
+        verify(mockErrorManager, times(1)).addError(anyString());
         verify(mockCommand, times(1)).call();
     }
 

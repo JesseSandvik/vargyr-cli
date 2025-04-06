@@ -46,9 +46,9 @@ public class CommandExecutionValidationStateTest {
 
     @Test
     public void testValidateOriginalArgumentsValidateWhenNull() {
-        doNothing().when(mockErrorManager).addFatalError(eq(commandExecution), anyString());
+        doNothing().when(mockErrorManager).addFatalError(anyString());
         CommandExecutionValidationState.VALIDATE_ORIGINAL_ARGUMENTS.validate(commandExecution);
-        verify(mockErrorManager, times(1)).addFatalError(eq(commandExecution), anyString());
+        verify(mockErrorManager, times(1)).addFatalError(anyString());
     }
 
     @Test
@@ -86,9 +86,9 @@ public class CommandExecutionValidationStateTest {
 
     @Test
     public void testValidateRootCommandWhenNull() {
-        doNothing().when(mockErrorManager).addFatalError(eq(commandExecution), anyString());
+        doNothing().when(mockErrorManager).addFatalError(anyString());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND.validate(commandExecution);
-        verify(mockErrorManager, times(1)).addFatalError(eq(commandExecution), anyString());
+        verify(mockErrorManager, times(1)).addFatalError(anyString());
     }
 
     @Test
@@ -114,18 +114,18 @@ public class CommandExecutionValidationStateTest {
     @Test
     public void testValidateRootCommandMetadataWhenNull() {
         commandExecution.setRootCommand(mockCommand);
-        doNothing().when(mockErrorManager).addFatalError(eq(commandExecution), anyString());
+        doNothing().when(mockErrorManager).addFatalError(anyString());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
-        verify(mockErrorManager, times(1)).addFatalError(eq(commandExecution), anyString());
+        verify(mockErrorManager, times(1)).addFatalError(anyString());
     }
 
     @Test
     public void testValidateRootCommandMetadataWhenNameIsNull() {
         when(mockCommand.getMetadata()).thenReturn(mockMetadata);
         commandExecution.setRootCommand(mockCommand);
-        doNothing().when(mockErrorManager).addFatalError(eq(commandExecution), anyString());
+        doNothing().when(mockErrorManager).addFatalError(anyString());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
-        verify(mockErrorManager, times(1)).addFatalError(eq(commandExecution), anyString());
+        verify(mockErrorManager, times(1)).addFatalError(anyString());
     }
 
     @Test
@@ -133,9 +133,9 @@ public class CommandExecutionValidationStateTest {
         when(mockMetadata.getName()).thenReturn("");
         when(mockCommand.getMetadata()).thenReturn(mockMetadata);
         commandExecution.setRootCommand(mockCommand);
-        doNothing().when(mockErrorManager).addFatalError(eq(commandExecution), anyString());
+        doNothing().when(mockErrorManager).addFatalError(anyString());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
-        verify(mockErrorManager, times(1)).addFatalError(eq(commandExecution), anyString());
+        verify(mockErrorManager, times(1)).addFatalError(anyString());
     }
 
     @Test
@@ -143,9 +143,9 @@ public class CommandExecutionValidationStateTest {
         when(mockMetadata.getName()).thenReturn("     ");
         when(mockCommand.getMetadata()).thenReturn(mockMetadata);
         commandExecution.setRootCommand(mockCommand);
-        doNothing().when(mockErrorManager).addFatalError(eq(commandExecution), anyString());
+        doNothing().when(mockErrorManager).addFatalError(anyString());
         CommandExecutionValidationState.VALIDATE_ROOT_COMMAND_METADATA.validate(commandExecution);
-        verify(mockErrorManager, times(1)).addFatalError(eq(commandExecution), anyString());
+        verify(mockErrorManager, times(1)).addFatalError(anyString());
     }
 
     @Test

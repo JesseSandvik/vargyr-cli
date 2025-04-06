@@ -7,13 +7,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VgrCommandExecutionValidator implements CommandExecutionValidator {
+    private final CommandExecution commandExecution;
     private CommandExecutionValidationState state;
 
-    public VgrCommandExecutionValidator() {
+    public VgrCommandExecutionValidator(CommandExecution commandExecution) {
+        this.commandExecution = commandExecution;
         this.state = CommandExecutionValidationState.INITIAL;
     }
 
-    public void validate(CommandExecution commandExecution) {
+    public void validate() {
         while (!state.name().equalsIgnoreCase(CommandExecutionValidationState.END.name())) {
             state.validate(commandExecution);
 
