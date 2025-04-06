@@ -3,6 +3,7 @@ package com.vargyr.command.parser.picocli;
 import com.vargyr.command.Option;
 import com.vargyr.command.PositionalParameter;
 import io.micronaut.core.util.StringUtils;
+import lombok.Getter;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Model.PositionalParamSpec;
@@ -73,8 +74,8 @@ public class PicocliCommandLineBuilder {
         if (StringUtils.isNotEmpty(version) && !version.isBlank()) {
             commandSpec.version(version);
             commandSpec.addOption(OptionSpec
-                    .builder("--version")
-                    .description("Show version information and exit.")
+                    .builder(DefaultOption.VERSION.getValue())
+                    .description(DefaultOptionDescription.VERSION.getValue())
                     .versionHelp(true)
                     .build()
             );
@@ -84,8 +85,8 @@ public class PicocliCommandLineBuilder {
 
     public PicocliCommandLineBuilder addHelpOption() {
         commandSpec.addOption(OptionSpec
-                .builder("-h", "--help")
-                .description("Show this help message and exit.")
+                .builder(DefaultOption.HELP_LONG.getValue(), DefaultOption.HELP_SHORT.getValue())
+                .description(DefaultOptionDescription.HELP.getValue())
                 .usageHelp(true)
                 .build()
         );
@@ -94,8 +95,8 @@ public class PicocliCommandLineBuilder {
 
     public PicocliCommandLineBuilder addDebugOption() {
         commandSpec.addOption(OptionSpec
-                .builder("--debug")
-                .description("Show debugging output.")
+                .builder(DefaultOption.DEBUG.getValue())
+                .description(DefaultOptionDescription.DEBUG.getValue())
                 .build()
         );
         return this;
@@ -103,8 +104,8 @@ public class PicocliCommandLineBuilder {
 
     public PicocliCommandLineBuilder addQuietOption() {
         commandSpec.addOption(OptionSpec
-                .builder("--quiet")
-                .description("Show minimal output.")
+                .builder(DefaultOption.QUIET.getValue())
+                .description(DefaultOptionDescription.QUIET.getValue())
                 .build()
         );
         return this;
@@ -112,8 +113,8 @@ public class PicocliCommandLineBuilder {
 
     public PicocliCommandLineBuilder addNoInputOption() {
         commandSpec.addOption(OptionSpec
-                .builder("--no-input")
-                .description("Disable interactive prompts.")
+                .builder(DefaultOption.NO_INPUT.getValue())
+                .description(DefaultOptionDescription.NO_INPUT.getValue())
                 .build()
         );
         return this;
@@ -130,5 +131,36 @@ public class PicocliCommandLineBuilder {
 
     public CommandLine build() {
         return new CommandLine(commandSpec);
+    }
+
+    @Getter
+    public enum DefaultOption {
+        DEBUG("--debug"),
+        HELP_LONG("--help"),
+        HELP_SHORT("-h"),
+        NO_INPUT("--no-input"),
+        QUIET("--quiet"),
+        VERSION("--version");
+
+        private final String value;
+
+        DefaultOption(String value) {
+            this.value = value;
+        }
+    }
+
+    @Getter
+    public enum DefaultOptionDescription {
+        DEBUG("Show debugging output."),
+        HELP("Show this help message and exit."),
+        NO_INPUT("Disable interactive prompts."),
+        QUIET("Show minimal output."),
+        VERSION("Show version information and exit.");
+
+        private final String value;
+
+        DefaultOptionDescription(String value) {
+            this.value = value;
+        }
     }
 }

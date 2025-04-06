@@ -16,7 +16,7 @@ public class Main {
     public static void main(String[] args) {
         VgrCommandMetadata metadata = new VgrCommandMetadata();
         metadata.setName("testing");
-        metadata.setVersion("1.0.2");
+//        metadata.setVersion("1.0.2");
         metadata.setDescription("Testing a fake command.");
         metadata.setSynopsis("A fake command.");
 

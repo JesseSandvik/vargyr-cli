@@ -33,7 +33,7 @@ public enum CommandExecutionState {
     PARSE_COMMAND_LINE {
         @Override
         public void processCurrentState(CommandExecution commandExecution) {
-            commandExecution.getParser().parse(commandExecution);
+            commandExecution.getParser().parse();
         }
 
         @Override

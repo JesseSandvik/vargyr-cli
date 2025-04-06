@@ -9,6 +9,7 @@ import com.vargyr.command.parser.CommandLineParser;
 
 import io.micronaut.core.util.StringUtils;
 import picocli.CommandLine;
+import picocli.CommandLine.UnmatchedArgumentException;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Model.OptionSpec;
 import picocli.CommandLine.Model.PositionalParamSpec;
@@ -22,6 +23,12 @@ public class PicocliCommandLineParser implements CommandLineParser {
 
     public PicocliCommandLineParser(CommandExecution commandExecution) {
         this.commandExecution = commandExecution;
+    }
+
+    private void handleQuiet(CommandLine commandLine, ParseResult parseResult) {
+        if (parseResult.hasMatchedOption(PicocliCommandLineBuilder.DefaultOption.QUIET.getValue())) {
+            commandLine.getOut().close();
+        }
     }
 
     private Integer handleUsageHelpRequested(CommandLine commandLine) {
@@ -109,61 +116,59 @@ public class PicocliCommandLineParser implements CommandLineParser {
     }
 
     @Override
-    public void parse(CommandExecution commandExecution) {
-        if (commandExecution.getRootCommand().getMetadata() == null) {
-            commandExecution.getErrorManager().addFatalError("metadata not found for root command");
-            return;
-        }
-
-        if (commandExecution.getOriginalArguments() == null) {
-            commandExecution.getErrorManager().addFatalError("original arguments not found for command execution");
-            return;
-        }
-
+    public void parse() {
         CommandLine commandLine = getCommandLineForCommand(commandExecution.getRootCommand());
-        ParseResult parseResult = commandLine.parseArgs(commandExecution.getOriginalArguments());
 
-        Queue<CommandLine> commandLineQueue = new ArrayDeque<>(parseResult.asCommandLineList());
-        while (!commandLineQueue.isEmpty()) {
-            CommandLine currentCommandLine = commandLineQueue.remove();
+        try {
+            ParseResult parseResult = commandLine.parseArgs(commandExecution.getOriginalArguments());
+            handleQuiet(commandLine, parseResult);
 
-            if (currentCommandLine.isUsageHelpRequested()) {
-                commandExecution.setState(CommandExecutionState.END);
-                commandExecution.setExitCode(handleUsageHelpRequested(currentCommandLine));
-                return;
+            Queue<CommandLine> commandLineQueue = new ArrayDeque<>(parseResult.asCommandLineList());
+            while (!commandLineQueue.isEmpty()) {
+                CommandLine currentCommandLine = commandLineQueue.remove();
+
+                if (currentCommandLine.isUsageHelpRequested()) {
+                    commandExecution.setState(CommandExecutionState.END);
+                    commandExecution.setExitCode(handleUsageHelpRequested(currentCommandLine));
+                    return;
+                }
+
+                if (currentCommandLine.isVersionHelpRequested()) {
+                    commandExecution.setState(CommandExecutionState.END);
+                    commandExecution.setExitCode(handleVersionHelpRequested(currentCommandLine));
+                    return;
+                }
+
+                ParseResult currentParseResult = currentCommandLine.getParseResult();
+                VgrCommand currentCommand = getCommandForParseResult(currentParseResult);
+                if (currentCommand == null) {
+                    commandExecution.getErrorManager().addFatalError("Unable to parse command line. Command not found.");
+                    return;
+                }
+
+                if (currentParseResult.expandedArgs().isEmpty() &&
+                        !currentCommand.getMetadata().getExecutesWithoutArguments()) {
+                    commandExecution.setState(CommandExecutionState.END);
+                    commandExecution.setExitCode(handleUsageHelpRequested(currentCommandLine));
+                }
+
+                if (currentCommand.getPositionalParameters() != null && !currentCommand.getPositionalParameters().isEmpty()) {
+                    setPositionalParameterValues(currentCommand.getPositionalParameters(), currentParseResult);
+                }
+
+                if (currentCommand.getOptions() != null && !currentCommand.getOptions().isEmpty()) {
+                    setOptionValues(currentCommand.getOptions(), currentParseResult);
+                }
+
+                if (commandLineQueue.isEmpty()) {
+                    commandExecution.setInvokedCommand(currentCommand);
+                    return;
+                }
             }
-
-            if (currentCommandLine.isVersionHelpRequested()) {
-                commandExecution.setState(CommandExecutionState.END);
-                commandExecution.setExitCode(handleVersionHelpRequested(currentCommandLine));
-                return;
-            }
-
-            ParseResult currentParseResult = currentCommandLine.getParseResult();
-            VgrCommand currentCommand = getCommandForParseResult(currentParseResult);
-            if (currentCommand == null) {
-                commandExecution.getErrorManager().addFatalError("Unable to parse command line. Command not found.");
-                return;
-            }
-
-            if (currentParseResult.expandedArgs().isEmpty() &&
-                    !currentCommand.getMetadata().getExecutesWithoutArguments()) {
-                commandExecution.setState(CommandExecutionState.END);
-                commandExecution.setExitCode(handleUsageHelpRequested(currentCommandLine));
-            }
-
-            if (currentCommand.getPositionalParameters() != null && !currentCommand.getPositionalParameters().isEmpty()) {
-                setPositionalParameterValues(currentCommand.getPositionalParameters(), currentParseResult);
-            }
-
-            if (currentCommand.getOptions() != null && !currentCommand.getOptions().isEmpty()) {
-                setOptionValues(currentCommand.getOptions(), currentParseResult);
-            }
-
-            if (commandLineQueue.isEmpty()) {
-                commandExecution.setInvokedCommand(currentCommand);
-                return;
-            }
+        } catch (UnmatchedArgumentException exception) {
+            commandExecution.getErrorManager().addFatalError(exception.getMessage());
+            exception.getCommandLine().getErr().println(exception.getMessage());
+            commandLine.usage(commandLine.getErr());
         }
     }
 }

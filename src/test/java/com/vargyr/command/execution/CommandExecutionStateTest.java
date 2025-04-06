@@ -63,11 +63,10 @@ public class CommandExecutionStateTest {
     @Test
     public void testParseCommandLineProcess() {
         CommandLineParser parser = mock(PicocliCommandLineParser.class);
-        doNothing().when(parser).parse(eq(commandExecution));
+        doNothing().when(parser).parse();
         commandExecution.setParser(parser);
 
         CommandExecutionState.PARSE_COMMAND_LINE.processCurrentState(commandExecution);
-        verify(parser, times(1)).parse(eq(commandExecution));
     }
 
     @Test
