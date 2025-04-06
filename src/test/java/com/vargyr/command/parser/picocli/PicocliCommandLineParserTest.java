@@ -1,5 +1,6 @@
 package com.vargyr.command.parser.picocli;
 
+import com.vargyr.command.Option;
 import com.vargyr.command.PositionalParameter;
 import com.vargyr.command.VgrCommand;
 import com.vargyr.command.execution.CommandExecution;
@@ -39,6 +40,13 @@ public class PicocliCommandLineParserTest {
     private final String mockPositionalParameterLabel = "test-a";
     private final String mockPositionalParameterSynopsis = "A test positional parameter.";
     private final String mockPositionalParameterValue = "value a";
+
+    private final Option mockOption = mock(Option.class);
+    private final String mockOptionLongName = "--test-a";
+    private final String mockOptionShortName = "-a";
+    private final String mockOptionSynopsis = "A test option.";
+    private final String mockOptionArgumentLabel = "<test-a>";
+    private final String mockOptionValue = "value a";
 
     @BeforeEach
     public void setUp() {
@@ -185,6 +193,86 @@ public class PicocliCommandLineParserTest {
     }
 
     @Test
+    public void testParseWhenOptionWithLongName() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        doNothing().when(mockOption).setValue(eq(true));
+
+        String[] arguments = {mockOptionLongName};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockCommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockCommand));
+        verify(mockOption, times(1)).setValue(eq(true));
+    }
+
+    @Test
+    public void testParseWhenOptionWithLongNameAndShortName() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getShortName()).thenReturn(mockOptionShortName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        doNothing().when(mockOption).setValue(eq(true));
+
+        String[] arguments = {mockOptionShortName};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockCommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockCommand));
+        verify(mockOption, times(1)).setValue(eq(true));
+    }
+
+    @Test
+    public void testParseWhenOptionWithLongNameAndArgumentLabel() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        when(mockOption.getArgumentLabel()).thenReturn(mockOptionArgumentLabel);
+        doNothing().when(mockOption).setValue(eq(mockOptionValue));
+
+        String[] arguments = {mockOptionLongName, mockOptionValue};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockCommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockCommand));
+        verify(mockOption, times(1)).setValue(eq(mockOptionValue));
+    }
+
+    @Test
+    public void testParseWhenOptionWithLongNameAndShortNameAndArgumentLabel() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getShortName()).thenReturn(mockOptionShortName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        when(mockOption.getArgumentLabel()).thenReturn(mockOptionArgumentLabel);
+        doNothing().when(mockOption).setValue(eq(mockOptionValue));
+
+        String[] arguments = {mockOptionShortName, mockOptionValue};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockCommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockCommand));
+        verify(mockOption, times(1)).setValue(eq(mockOptionValue));
+    }
+
+    @Test
     public void testParseWhenSubcommandWithNoArgumentsAndSubcommandExecutesWithoutArguments() {
         when(mockMetadata.getName()).thenReturn(mockCommandName);
         when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
@@ -243,6 +331,102 @@ public class PicocliCommandLineParserTest {
         parser.parse();
         verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockSubcommand));
         verify(mockPositionalParameter, times(1)).setValue(eq(mockPositionalParameterValue));
+    }
+
+    @Test
+    public void testParseWhenSubcommandWithOptionWithLongName() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
+
+        when(mockSubcommand.getMetadata()).thenReturn(mockSubcommandMetadata);
+        when(mockSubcommandMetadata.getName()).thenReturn(mockSubcommandName);
+        when(mockSubcommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        doNothing().when(mockOption).setValue(eq(true));
+
+        String[] arguments = {mockSubcommandName, mockOptionLongName};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockSubcommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockSubcommand));
+        verify(mockOption, times(1)).setValue(eq(true));
+    }
+
+    @Test
+    public void testParseWhenSubcommandWithOptionWithLongNameAndShortName() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
+
+        when(mockSubcommand.getMetadata()).thenReturn(mockSubcommandMetadata);
+        when(mockSubcommandMetadata.getName()).thenReturn(mockSubcommandName);
+        when(mockSubcommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getShortName()).thenReturn(mockOptionShortName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        doNothing().when(mockOption).setValue(eq(true));
+
+        String[] arguments = {mockSubcommandName, mockOptionShortName};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockSubcommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockSubcommand));
+        verify(mockOption, times(1)).setValue(eq(true));
+    }
+
+    @Test
+    public void testParseWhenSubcommandWithOptionWithLongNameAndArgumentLabel() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
+
+        when(mockSubcommand.getMetadata()).thenReturn(mockSubcommandMetadata);
+        when(mockSubcommandMetadata.getName()).thenReturn(mockSubcommandName);
+        when(mockSubcommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        when(mockOption.getArgumentLabel()).thenReturn(mockOptionArgumentLabel);
+        doNothing().when(mockOption).setValue(eq(mockOptionValue));
+
+        String[] arguments = {mockSubcommandName, mockOptionLongName, mockOptionValue};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockSubcommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockSubcommand));
+        verify(mockOption, times(1)).setValue(eq(mockOptionValue));
+    }
+
+    @Test
+    public void testParseWhenSubcommandWithOptionWithLongNameAndShortNameAndArgumentLabel() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
+
+        when(mockSubcommand.getMetadata()).thenReturn(mockSubcommandMetadata);
+        when(mockSubcommandMetadata.getName()).thenReturn(mockSubcommandName);
+        when(mockSubcommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getShortName()).thenReturn(mockOptionShortName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        when(mockOption.getArgumentLabel()).thenReturn(mockOptionArgumentLabel);
+        doNothing().when(mockOption).setValue(eq(mockOptionValue));
+
+        String[] arguments = {mockSubcommandName, mockOptionShortName, mockOptionValue};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockSubcommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockSubcommand));
+        verify(mockOption, times(1)).setValue(eq(mockOptionValue));
     }
 
     @Test
@@ -316,5 +500,117 @@ public class PicocliCommandLineParserTest {
         parser.parse();
         verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockNestedSubcommand));
         verify(mockPositionalParameter, times(1)).setValue(eq(mockPositionalParameterValue));
+    }
+
+    @Test
+    public void testParseWhenNestedSubcommandWithOptionWithLongName() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
+
+        when(mockSubcommand.getMetadata()).thenReturn(mockSubcommandMetadata);
+        when(mockSubcommandMetadata.getName()).thenReturn(mockSubcommandName);
+        when(mockSubcommand.getSubcommands()).thenReturn(List.of(mockNestedSubcommand));
+
+        when(mockNestedSubcommand.getMetadata()).thenReturn(mockNestedSubcommandMetadata);
+        when(mockNestedSubcommandMetadata.getName()).thenReturn(mockNestedSubcommandName);
+        when(mockNestedSubcommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        doNothing().when(mockOption).setValue(eq(true));
+
+        String[] arguments = {mockSubcommandName, mockNestedSubcommandName, mockOptionLongName};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockNestedSubcommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockNestedSubcommand));
+        verify(mockOption, times(1)).setValue(eq(true));
+    }
+
+    @Test
+    public void testParseWhenNestedSubcommandWithOptionWithLongNameAndShortName() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
+
+        when(mockSubcommand.getMetadata()).thenReturn(mockSubcommandMetadata);
+        when(mockSubcommandMetadata.getName()).thenReturn(mockSubcommandName);
+        when(mockSubcommand.getSubcommands()).thenReturn(List.of(mockNestedSubcommand));
+
+        when(mockNestedSubcommand.getMetadata()).thenReturn(mockNestedSubcommandMetadata);
+        when(mockNestedSubcommandMetadata.getName()).thenReturn(mockNestedSubcommandName);
+        when(mockNestedSubcommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getShortName()).thenReturn(mockOptionShortName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        doNothing().when(mockOption).setValue(eq(true));
+
+        String[] arguments = {mockSubcommandName, mockNestedSubcommandName, mockOptionShortName};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockNestedSubcommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockNestedSubcommand));
+        verify(mockOption, times(1)).setValue(eq(true));
+    }
+
+    @Test
+    public void testParseWhenNestedSubcommandWithOptionWithLongNameAndArgumentLabel() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
+
+        when(mockSubcommand.getMetadata()).thenReturn(mockSubcommandMetadata);
+        when(mockSubcommandMetadata.getName()).thenReturn(mockSubcommandName);
+        when(mockSubcommand.getSubcommands()).thenReturn(List.of(mockNestedSubcommand));
+
+        when(mockNestedSubcommand.getMetadata()).thenReturn(mockNestedSubcommandMetadata);
+        when(mockNestedSubcommandMetadata.getName()).thenReturn(mockNestedSubcommandName);
+        when(mockNestedSubcommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        when(mockOption.getArgumentLabel()).thenReturn(mockOptionArgumentLabel);
+        doNothing().when(mockOption).setValue(eq(mockOptionValue));
+
+        String[] arguments = {mockSubcommandName, mockNestedSubcommandName, mockOptionLongName, mockOptionValue};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockNestedSubcommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockNestedSubcommand));
+        verify(mockOption, times(1)).setValue(eq(mockOptionValue));
+    }
+
+    @Test
+    public void testParseWhenNestedSubcommandWithOptionWithLongNameAndShortNameAndArgumentLabel() {
+        when(mockMetadata.getName()).thenReturn(mockCommandName);
+        when(mockCommand.getSubcommands()).thenReturn(List.of(mockSubcommand));
+
+        when(mockSubcommand.getMetadata()).thenReturn(mockSubcommandMetadata);
+        when(mockSubcommandMetadata.getName()).thenReturn(mockSubcommandName);
+        when(mockSubcommand.getSubcommands()).thenReturn(List.of(mockNestedSubcommand));
+
+        when(mockNestedSubcommand.getMetadata()).thenReturn(mockNestedSubcommandMetadata);
+        when(mockNestedSubcommandMetadata.getName()).thenReturn(mockNestedSubcommandName);
+        when(mockNestedSubcommand.getOptions()).thenReturn(List.of(mockOption));
+
+        when(mockOption.getLongName()).thenReturn(mockOptionLongName);
+        when(mockOption.getShortName()).thenReturn(mockOptionShortName);
+        when(mockOption.getSynopsis()).thenReturn(mockOptionSynopsis);
+        when(mockOption.getArgumentLabel()).thenReturn(mockOptionArgumentLabel);
+        doNothing().when(mockOption).setValue(eq(mockOptionValue));
+
+        String[] arguments = {mockSubcommandName, mockNestedSubcommandName, mockOptionShortName, mockOptionValue};
+        when(mockCommandExecution.getOriginalArguments()).thenReturn(arguments);
+        when(mockCommandExecution.getRootCommand()).thenReturn(mockCommand);
+        doNothing().when(mockCommandExecution).setInvokedCommand(eq(mockNestedSubcommand));
+
+        parser.parse();
+        verify(mockCommandExecution, times(1)).setInvokedCommand(eq(mockNestedSubcommand));
+        verify(mockOption, times(1)).setValue(eq(mockOptionValue));
     }
 }
