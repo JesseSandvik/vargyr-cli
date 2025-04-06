@@ -1,11 +1,10 @@
 package com.vargyr;
 
 import com.vargyr.command.Option;
-import com.vargyr.command.PositionalParameter;
 import com.vargyr.command.VgrCommand;
 import com.vargyr.command.executable.VgrExecutableCommand;
 import com.vargyr.command.metadata.VgrCommandMetadata;
-import com.vargyr.command.orchestrator.CommandOrchestrator;
+import com.vargyr.command.engine.CommandEngine;
 import com.vargyr.testing.TestCommand;
 import com.vargyr.testing.TestCommand2;
 
@@ -16,7 +15,7 @@ public class Main {
 
     public static void main(String[] args) {
         VgrCommandMetadata metadata = new VgrCommandMetadata();
-//        metadata.setName("testing");
+        metadata.setName("testing");
         metadata.setVersion("1.0.2");
         metadata.setDescription("Testing a fake command.");
         metadata.setSynopsis("A fake command.");
@@ -56,8 +55,8 @@ public class Main {
         subcommands.add(subcommand);
         command.setSubcommands(subcommands);
 
-        CommandOrchestrator processor = new CommandOrchestrator(command, args);
-        int exitCode = processor.run();
+        CommandEngine processor = new CommandEngine(command);
+        int exitCode = processor.run(args);
         System.exit(exitCode);
     }
 }

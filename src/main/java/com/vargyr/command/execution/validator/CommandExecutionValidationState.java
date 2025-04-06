@@ -1,5 +1,7 @@
-package com.vargyr.command.execution;
+package com.vargyr.command.execution.validator;
 
+import com.vargyr.command.execution.CommandExecution;
+import com.vargyr.command.execution.CommandExecutionState;
 import io.micronaut.core.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,7 @@ public enum CommandExecutionValidationState {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getOriginalArguments() == null) {
-                CommandExecutionErrorManager.setFatal(
+                commandExecution.getErrorManager().addFatalError(
                         commandExecution,
                         "original arguments not set"
                 );
@@ -37,7 +39,7 @@ public enum CommandExecutionValidationState {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getRootCommand() == null) {
-                CommandExecutionErrorManager.setFatal(
+                commandExecution.getErrorManager().addFatalError(
                         commandExecution,
                         "root command not set"
                 );
@@ -54,7 +56,7 @@ public enum CommandExecutionValidationState {
         @Override
         public void validate(CommandExecution commandExecution) {
             if (commandExecution.getRootCommand().getMetadata() == null) {
-                CommandExecutionErrorManager.setFatal(
+                commandExecution.getErrorManager().addFatalError(
                         commandExecution,
                         "metadata not set for root command"
                 );
@@ -63,7 +65,7 @@ public enum CommandExecutionValidationState {
 
             if (StringUtils.isEmpty(commandExecution.getRootCommand().getMetadata().getName()) ||
             commandExecution.getRootCommand().getMetadata().getName().isBlank()) {
-                CommandExecutionErrorManager.setFatal(
+                commandExecution.getErrorManager().addFatalError(
                         commandExecution,
                         "'name' not set for root command metadata"
                 );

@@ -4,9 +4,7 @@ import com.vargyr.command.Option;
 import com.vargyr.command.PositionalParameter;
 import com.vargyr.command.VgrCommand;
 import com.vargyr.command.execution.CommandExecution;
-import com.vargyr.command.execution.CommandExecutionErrorManager;
 import com.vargyr.command.execution.CommandExecutionState;
-import com.vargyr.command.execution.CommandExecutionError;
 import com.vargyr.command.parser.CommandLineParser;
 
 import io.micronaut.core.util.StringUtils;
@@ -113,12 +111,18 @@ public class PicocliCommandLineParser implements CommandLineParser {
     @Override
     public void parse(CommandExecution commandExecution) {
         if (commandExecution.getRootCommand().getMetadata() == null) {
-            CommandExecutionErrorManager.setFatal(commandExecution, "metadata not found for root command");
+            commandExecution.getErrorManager().addFatalError(
+                    commandExecution,
+                    "metadata not found for root command"
+            );
             return;
         }
 
         if (commandExecution.getOriginalArguments() == null) {
-            CommandExecutionErrorManager.setFatal(commandExecution, "original arguments not found for command execution");
+            commandExecution.getErrorManager().addFatalError(
+                    commandExecution,
+                    "original arguments not found for command execution"
+            );
             return;
         }
 
@@ -144,12 +148,10 @@ public class PicocliCommandLineParser implements CommandLineParser {
             ParseResult currentParseResult = currentCommandLine.getParseResult();
             VgrCommand currentCommand = getCommandForParseResult(currentParseResult);
             if (currentCommand == null) {
-                CommandExecutionError error = new CommandExecutionError();
-                error.setDisplayMessage("Unable to parse command line. Command not found.");
-                error.setFatal(true);
-                commandExecution.setState(CommandExecutionState.END);
-                commandExecution.getErrors().add(error);
-                commandExecution.setExitCode(1);
+                commandExecution.getErrorManager().addFatalError(
+                        commandExecution,
+                        "Unable to parse command line. Command not found."
+                );
                 return;
             }
 

@@ -1,6 +1,5 @@
 package com.vargyr.command.execution;
 
-import com.vargyr.command.parser.picocli.PicocliCommandLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,16 +21,7 @@ public enum CommandExecutionState {
     VALIDATE_COMMAND_EXECUTION {
         @Override
         public void processCurrentState(CommandExecution commandExecution) {
-            CommandExecutionValidationState commandExecutionValidationState = CommandExecutionValidationState.INITIAL;
-            while (commandExecutionValidationState != CommandExecutionValidationState.END) {
-                commandExecutionValidationState.validate(commandExecution);
-
-                if (commandExecution.getExitCode() != 0) {
-                    break;
-                }
-
-                commandExecutionValidationState = commandExecutionValidationState.transitionToNextState();
-            }
+            commandExecution.getValidator().validate(commandExecution);
         }
 
         @Override
@@ -43,9 +33,7 @@ public enum CommandExecutionState {
     PARSE_COMMAND_LINE {
         @Override
         public void processCurrentState(CommandExecution commandExecution) {
-            LOGGER.info("parsing command line");
-            PicocliCommandLineParser parser = new PicocliCommandLineParser(commandExecution);
-            parser.parse(commandExecution);
+            commandExecution.getParser().parse(commandExecution);
         }
 
         @Override
@@ -58,10 +46,9 @@ public enum CommandExecutionState {
         @Override
         public void processCurrentState(CommandExecution commandExecution) {
             try {
-                LOGGER.info("calling command");
                 commandExecution.setExitCode(commandExecution.getInvokedCommand().call());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (Exception exception) {
+                commandExecution.getErrorManager().addError(commandExecution, exception.getMessage());
             }
         }
 
